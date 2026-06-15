@@ -32,7 +32,7 @@ No Node.js or npm required.
 
 ```bash
 # 1. Clone
-git clone https://github.com/your-username/laravel-starter.git
+git clone https://github.com/alienbdit/Laravel-13-Starter.git
 cd laravel-starter
 
 # 2. Install dependencies
