@@ -1,10 +1,18 @@
-﻿<!-- Menu -->
+<!-- Menu -->
 <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
     <div class="app-brand demo">
         <a href="{{ url('/') }}" class="app-brand-link">
-            <span class="app-brand-logo demo">
-                @include('partials.brand-logo')
-            </span>
+            @php $siteLogo = setting('site_logo'); @endphp
+            @if($siteLogo)
+                <span class="app-brand-logo demo">
+                    <img src="{{ asset($siteLogo) }}" alt="{{ config('app.name') }}"
+                         style="height:28px;width:auto;object-fit:contain;">
+                </span>
+            @else
+                <span class="app-brand-logo demo">
+                    @include('partials.brand-logo')
+                </span>
+            @endif
             <span class="app-brand-text demo menu-text fw-bolder ms-2">{{ config('app.name', 'Laravel') }}</span>
         </a>
 
@@ -28,86 +36,84 @@
             Add your menu items here. Examples:
 
             Single item:
-            <li class="menu-item {{ request()->is('users*') ? 'active' : '' }}">
-                <a href="{{ url('/users') }}" class="menu-link">
-                    <i class="menu-icon tf-icons bx bx-user"></i>
-                    <div>Users</div>
+            <li class="menu-item {{ request()->is('your-route*') ? 'active' : '' }}">
+                <a href="{{ url('/your-route') }}" class="menu-link">
+                    <i class="menu-icon tf-icons bx bx-file"></i>
+                    <div>Page Name</div>
                 </a>
             </li>
 
             Item with submenu (add 'active open' to the parent when a child is active):
-            <li class="menu-item">
+            <li class="menu-item {{ request()->is('parent*') ? 'active open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons bx bx-cog"></i>
-                    <div>Settings</div>
+                    <div>Parent</div>
                 </a>
                 <ul class="menu-sub">
-                    <li class="menu-item">
-                        <a href="#" class="menu-link"><div>General</div></a>
+                    <li class="menu-item {{ request()->is('parent/child') ? 'active' : '' }}">
+                        <a href="{{ url('/parent/child') }}" class="menu-link">
+                            <div>Child</div>
+                        </a>
                     </li>
                 </ul>
             </li>
 
             Section header:
             <li class="menu-header small text-uppercase">
-                <span class="menu-header-text">Apps &amp; Pages</span>
+                <span class="menu-header-text">Section</span>
             </li>
         --}}
-
-        <!-- Pages -->
-        <li class="menu-header small text-uppercase"><span class="menu-header-text">Pages</span></li>
-        <li class="menu-item {{ request()->is('settings*') ? 'active open' : '' }}">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-dock-top"></i>
-                <div data-i18n="Account Settings">Account Settings</div>
-            </a>
-            <ul class="menu-sub">
-                <li class="menu-item {{ request()->is('settings/account') ? 'active' : '' }}">
-                    <a href="{{ route('settings.account') }}" class="menu-link">
-                        <div data-i18n="Account">Account</div>
-                    </a>
-                </li>
-                <li class="menu-item {{ request()->is('settings/notifications') ? 'active' : '' }}">
-                    <a href="{{ route('settings.notifications') }}" class="menu-link">
-                        <div data-i18n="Notifications">Notifications</div>
-                    </a>
-                </li>
-                <li class="menu-item {{ request()->is('settings/connections') ? 'active' : '' }}">
-                    <a href="{{ route('settings.connections') }}" class="menu-link">
-                        <div data-i18n="Connections">Connections</div>
-                    </a>
-                </li>
-            </ul>
-        </li>
 
 @canany(['users.view', 'roles.view', 'permissions.view'])
         <!-- Administration -->
         <li class="menu-header small text-uppercase"><span class="menu-header-text">Administration</span></li>
-        @can('users.view')
-        <li class="menu-item {{ request()->is('admin/users*') ? 'active' : '' }}">
-            <a href="{{ route('admin.users.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-group"></i>
-                <div>Users</div>
-            </a>
-        </li>
-        @endcan
-        @can('roles.view')
-        <li class="menu-item {{ request()->is('admin/roles*') ? 'active' : '' }}">
-            <a href="{{ route('admin.roles.index') }}" class="menu-link">
+        <li class="menu-item {{ request()->is('admin/*') ? 'active open' : '' }}">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-shield-quarter"></i>
-                <div>Roles</div>
+                <div>Administration</div>
             </a>
+            <ul class="menu-sub">
+                @can('users.view')
+                <li class="menu-item {{ request()->is('admin/users*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.users.index') }}" class="menu-link">
+                        <div>Users</div>
+                    </a>
+                </li>
+                @endcan
+                @can('roles.view')
+                <li class="menu-item {{ request()->is('admin/roles*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.roles.index') }}" class="menu-link">
+                        <div>Roles</div>
+                    </a>
+                </li>
+                @endcan
+                @can('permissions.view')
+                <li class="menu-item {{ request()->is('admin/permissions*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.permissions.index') }}" class="menu-link">
+                        <div>Permissions</div>
+                    </a>
+                </li>
+                @endcan
+                @if(auth()->user()?->hasRole('super_admin'))
+                <li class="menu-item {{ request()->is('admin/settings*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.settings.index') }}" class="menu-link">
+                        <div>Site Settings</div>
+                    </a>
+                </li>
+                <li class="menu-item {{ request()->is('admin/sms-gateway*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.sms-gateway.index') }}" class="menu-link">
+                        <div>SMS Gateway</div>
+                    </a>
+                </li>
+                <li class="menu-item {{ request()->is('admin/artisan*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.artisan.index') }}" class="menu-link">
+                        <div>Artisan Console</div>
+                    </a>
+                </li>
+                @endif
+            </ul>
         </li>
-        @endcan
-        @can('permissions.view')
-        <li class="menu-item {{ request()->is('admin/permissions*') ? 'active' : '' }}">
-            <a href="{{ route('admin.permissions.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-key"></i>
-                <div>Permissions</div>
-            </a>
-        </li>
-        @endcan
-        @endcanany
+@endcanany
 
         <!-- Misc -->
         <li class="menu-header small text-uppercase"><span class="menu-header-text">Misc</span></li>
@@ -120,4 +126,3 @@
     </ul>
 </aside>
 <!-- / Menu -->
-

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\SiteSetting;
 use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
@@ -19,8 +20,12 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-    public function showRegister(): View
+    public function showRegister(): View|RedirectResponse
     {
+        if (SiteSetting::get('allow_registration', '1') !== '1') {
+            abort(403, 'Registration is currently disabled.');
+        }
+
         return view('auth.register');
     }
 
@@ -36,19 +41,37 @@ class AuthController extends Controller
 
         $attempt = [$field => $credentials['email'], 'password' => $credentials['password']];
 
-        if (! Auth::attempt($attempt, $request->boolean('remember'))) {
+        if (! Auth::validate($attempt)) {
             return back()
                 ->withErrors(['email' => __('auth.failed')])
                 ->onlyInput('email');
         }
 
+        $user = User::where($field, $credentials['email'])->first();
+
+        if ($user->twoFactorEnabled()) {
+            $request->session()->put('two_factor_user_id', $user->id);
+            $request->session()->put('two_factor_remember', $request->boolean('remember'));
+            return redirect()->route('two-factor.verify');
+        }
+
+        Auth::login($user, $request->boolean('remember'));
         $request->session()->regenerate();
+
+        if (SiteSetting::get('require_2fa', '0') === '1' && ! $user->twoFactorEnabled()) {
+            return redirect()->route('settings.security')
+                ->with('warning', '2FA is required for all accounts. Please set it up to continue.');
+        }
 
         return redirect()->intended('/');
     }
 
     public function register(Request $request): RedirectResponse
     {
+        if (SiteSetting::get('allow_registration', '1') !== '1') {
+            abort(403, 'Registration is currently disabled.');
+        }
+
         $validated = $request->validate([
             'username' => ['required', 'string', 'max:255', 'unique:users,name'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],

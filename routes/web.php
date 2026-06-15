@@ -1,10 +1,20 @@
 <?php
 
+use App\Http\Controllers\Admin\ArtisanController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\SiteSettingController;
+use App\Http\Controllers\Admin\SmsGatewayController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TwoFactorController;
 use Illuminate\Support\Facades\Route;
+
+// 2FA verification — no auth/guest guard; controller validates session
+Route::get('/two-factor', [TwoFactorController::class, 'showVerify'])->name('two-factor.verify');
+Route::post('/two-factor', [TwoFactorController::class, 'verify'])->name('two-factor.post');
+Route::post('/two-factor/resend', [TwoFactorController::class, 'resend'])->name('two-factor.resend');
 
 Route::middleware('auth')->group(function () {
     Route::get('/', function () {
@@ -13,10 +23,23 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+    // Profile
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+    Route::post('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.photo.update');
+    Route::delete('/profile/photo', [ProfileController::class, 'removePhoto'])->name('profile.photo.remove');
+
+    // Serve private avatar images (any authenticated user may view)
+    Route::get('/avatar/{userId}', [ProfileController::class, 'servePhoto'])->name('profile.avatar');
+
+    // Security / 2FA settings
     Route::prefix('settings')->name('settings.')->group(function () {
-        Route::view('/account', 'account-settings.account')->name('account');
-        Route::view('/notifications', 'account-settings.notifications')->name('notifications');
-        Route::view('/connections', 'account-settings.connections')->name('connections');
+        Route::get('/security', [TwoFactorController::class, 'showSecurity'])->name('security');
+        Route::post('/two-factor/enable', [TwoFactorController::class, 'enable'])->name('two-factor.enable');
+        Route::get('/two-factor/setup-totp', [TwoFactorController::class, 'showSetupTotp'])->name('two-factor.setup-totp');
+        Route::post('/two-factor/confirm-totp', [TwoFactorController::class, 'confirmTotp'])->name('two-factor.confirm-totp');
+        Route::delete('/two-factor/disable', [TwoFactorController::class, 'disable'])->name('two-factor.disable');
     });
 
     Route::prefix('admin')->name('admin.')->middleware('role:super_admin,admin')->group(function () {
@@ -36,6 +59,22 @@ Route::middleware('auth')->group(function () {
         Route::get('/roles/{role}/edit', [RoleController::class, 'edit'])->name('roles.edit')->middleware('role:super_admin');
         Route::put('/roles/{role}', [RoleController::class, 'update'])->name('roles.update')->middleware('role:super_admin');
         Route::delete('/roles/{role}', [RoleController::class, 'destroy'])->name('roles.destroy')->middleware('role:super_admin');
+
+        // Site Settings (super_admin only)
+        Route::get('/settings', [SiteSettingController::class, 'index'])->name('settings.index')->middleware('role:super_admin');
+        Route::put('/settings/general', [SiteSettingController::class, 'updateGeneral'])->name('settings.update-general')->middleware('role:super_admin');
+        Route::put('/settings/email', [SiteSettingController::class, 'updateEmail'])->name('settings.update-email')->middleware('role:super_admin');
+        Route::put('/settings/security', [SiteSettingController::class, 'updateSecurity'])->name('settings.update-security')->middleware('role:super_admin');
+        Route::post('/settings/appearance', [SiteSettingController::class, 'updateAppearance'])->name('settings.update-appearance')->middleware('role:super_admin');
+
+        // SMS Gateway (super_admin only)
+        Route::get('/sms-gateway', [SmsGatewayController::class, 'index'])->name('sms-gateway.index')->middleware('role:super_admin');
+        Route::put('/sms-gateway', [SmsGatewayController::class, 'update'])->name('sms-gateway.update')->middleware('role:super_admin');
+        Route::post('/sms-gateway/test', [SmsGatewayController::class, 'test'])->name('sms-gateway.test')->middleware('role:super_admin');
+
+        // Artisan Console (super_admin only)
+        Route::get('/artisan', [ArtisanController::class, 'index'])->name('artisan.index')->middleware('role:super_admin');
+        Route::post('/artisan/run', [ArtisanController::class, 'run'])->name('artisan.run')->middleware('role:super_admin');
 
         // Permissions
         Route::get('/permissions', [PermissionController::class, 'index'])->name('permissions.index');

@@ -58,9 +58,14 @@
                         <td class="ps-3">
                             <div class="d-flex align-items-center gap-2">
                                 <div class="avatar avatar-xs flex-shrink-0">
-                                    <span class="avatar-initial rounded-circle bg-label-{{ $c }}">
-                                        {{ strtoupper(substr($user->name, 0, 1)) }}
-                                    </span>
+                                    @if($user->profile_photo)
+                                        <img src="{{ $user->photoUrl() }}" alt="{{ $user->name }}"
+                                             class="rounded-circle" style="width:100%;height:100%;object-fit:cover;">
+                                    @else
+                                        <span class="avatar-initial rounded-circle bg-label-{{ $c }}">
+                                            {{ strtoupper(substr($user->name, 0, 1)) }}
+                                        </span>
+                                    @endif
                                 </div>
                                 <div>
                                     <span class="fw-semibold d-block" style="font-size:.875rem;">

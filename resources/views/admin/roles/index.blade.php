@@ -78,9 +78,14 @@
                             @forelse($role->users->take(4) as $user)
                                 @php $c = $avatarColors[$user->id % count($avatarColors)]; @endphp
                                 <div class="avatar avatar-xs pull-up" title="{{ $user->name }}">
-                                    <span class="avatar-initial rounded-circle bg-label-{{ $c }}">
-                                        {{ strtoupper(substr($user->name, 0, 1)) }}
-                                    </span>
+                                    @if($user->profile_photo)
+                                        <img src="{{ $user->photoUrl() }}" alt="{{ $user->name }}"
+                                             class="rounded-circle" style="width:100%;height:100%;object-fit:cover;">
+                                    @else
+                                        <span class="avatar-initial rounded-circle bg-label-{{ $c }}">
+                                            {{ strtoupper(substr($user->name, 0, 1)) }}
+                                        </span>
+                                    @endif
                                 </div>
                             @empty
                                 <span class="text-muted" style="font-size:.75rem;">No users</span>

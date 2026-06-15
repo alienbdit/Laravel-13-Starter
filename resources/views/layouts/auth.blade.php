@@ -38,6 +38,22 @@
 
     @stack('page-css')
 
+    @php $loginBg = setting('login_bg'); @endphp
+    @if($loginBg)
+    <style>
+        body {
+            background-image: url('{{ asset($loginBg) }}') !important;
+            background-size: cover !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
+        }
+        .authentication-inner .card {
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25) !important;
+            backdrop-filter: blur(2px);
+        }
+    </style>
+    @endif
+
     <!-- Helpers -->
     <script src="{{ asset('assets/vendor/js/helpers.js') }}"></script>
     <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->

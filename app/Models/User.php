@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'profile_photo', 'two_factor_type', 'two_factor_secret', 'two_factor_phone', 'two_factor_confirmed_at'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -26,9 +26,20 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'email_verified_at'        => 'datetime',
+            'password'                 => 'hashed',
+            'two_factor_confirmed_at'  => 'datetime',
         ];
+    }
+
+    public function twoFactorEnabled(): bool
+    {
+        return $this->two_factor_type !== null && $this->two_factor_confirmed_at !== null;
+    }
+
+    public function photoUrl(): ?string
+    {
+        return $this->profile_photo ? route('profile.avatar', $this->id) : null;
     }
 
     public function roles(): BelongsToMany

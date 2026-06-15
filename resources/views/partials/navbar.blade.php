@@ -26,46 +26,58 @@
 
         <ul class="navbar-nav flex-row align-items-center ms-auto">
             <!-- User -->
+            @php
+                $navUser      = auth()->user();
+                $navColors    = ['primary','success','warning','info','danger','secondary'];
+                $navColor     = $navColors[$navUser?->id % count($navColors)] ?? 'primary';
+                $navInitial   = strtoupper(substr($navUser?->name ?? 'U', 0, 1));
+            @endphp
             <li class="nav-item navbar-dropdown dropdown-user dropdown">
                 <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
                     <div class="avatar avatar-online">
-                        <img src="{{ asset('assets/img/avatars/1.png') }}" alt class="w-px-40 h-auto rounded-circle">
+                        @if($navUser->profile_photo)
+                            <img src="{{ $navUser->photoUrl() }}" alt="{{ $navUser->name }}"
+                                 class="rounded-circle" style="width:100%;height:100%;object-fit:cover;">
+                        @else
+                            <span class="avatar-initial rounded-circle bg-label-{{ $navColor }}">{{ $navInitial }}</span>
+                        @endif
                     </div>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li>
-                        <a class="dropdown-item" href="#">
+                        <a class="dropdown-item" href="{{ route('profile') }}">
                             <div class="d-flex">
                                 <div class="flex-shrink-0 me-3">
-                                    <div class="avatar avatar-online">
-                                        <img src="{{ asset('assets/img/avatars/1.png') }}" alt class="w-px-40 h-auto rounded-circle">
+                                    <div class="avatar">
+                                        @if($navUser->profile_photo)
+                                            <img src="{{ $navUser->photoUrl() }}" alt="{{ $navUser->name }}"
+                                                 class="rounded-circle" style="width:100%;height:100%;object-fit:cover;">
+                                        @else
+                                            <span class="avatar-initial rounded-circle bg-label-{{ $navColor }}">{{ $navInitial }}</span>
+                                        @endif
                                     </div>
                                 </div>
                                 <div class="flex-grow-1">
-                                    <span class="fw-semibold d-block">{{ auth()->user()->name ?? 'Guest' }}</span>
-                                    <small class="text-muted">{{ auth()->user()->email ?? '' }}</small>
+                                    <span class="fw-semibold d-block lh-1 mt-1">{{ $navUser->name }}</span>
+                                    <small class="text-muted">{{ $navUser->email }}</small>
                                 </div>
                             </div>
                         </a>
                     </li>
+                    <li><div class="dropdown-divider"></div></li>
                     <li>
-                        <div class="dropdown-divider"></div>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" href="{{ route('settings.account') }}">
+                        <a class="dropdown-item" href="{{ route('profile') }}">
                             <i class="bx bx-user me-2"></i>
                             <span class="align-middle">My Profile</span>
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item" href="{{ route('settings.notifications') }}">
-                            <i class="bx bx-cog me-2"></i>
-                            <span class="align-middle">Settings</span>
+                        <a class="dropdown-item" href="{{ route('settings.security') }}">
+                            <i class="bx bx-shield-quarter me-2"></i>
+                            <span class="align-middle">Security / 2FA</span>
                         </a>
                     </li>
-                    <li>
-                        <div class="dropdown-divider"></div>
-                    </li>
+                    <li><div class="dropdown-divider"></div></li>
                     <li>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
