@@ -110,6 +110,11 @@
                         <div>Artisan Console</div>
                     </a>
                 </li>
+                <li class="menu-item {{ request()->is('admin/filemanager*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.filemanager.index') }}" class="menu-link">
+                        <div>File Manager</div>
+                    </a>
+                </li>
                 @endif
             </ul>
         </li>

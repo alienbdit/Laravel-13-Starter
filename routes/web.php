@@ -76,6 +76,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/artisan', [ArtisanController::class, 'index'])->name('artisan.index')->middleware('role:super_admin');
         Route::post('/artisan/run', [ArtisanController::class, 'run'])->name('artisan.run')->middleware('role:super_admin');
 
+        // File Manager (super_admin only — LFM package routes are registered separately via config)
+        Route::get('/filemanager', fn () => view('admin.filemanager.index'))->name('filemanager.index')->middleware('role:super_admin');
+
         // Permissions
         Route::get('/permissions', [PermissionController::class, 'index'])->name('permissions.index');
         Route::get('/permissions/create', [PermissionController::class, 'create'])->name('permissions.create')->middleware('permission:permissions.create');
