@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Encryption\Encrypter;
 use App\Models\Permission;
 use App\Models\SiteSetting;
 use App\Models\User;
@@ -12,7 +13,18 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        // PHP 8.5 workaround: openssl_encrypt() with a by-ref $tag argument is broken
+        // for non-AEAD ciphers in the built-in web server. Replace with a fixed subclass.
+        $this->app->singleton('encrypter', function ($app) {
+            $config = $app->make('config')->get('app');
+            $key    = $config['key'];
+
+            if (str_starts_with($key, 'base64:')) {
+                $key = base64_decode(substr($key, 7));
+            }
+
+            return new Encrypter($key, $config['cipher'] ?? 'AES-256-CBC');
+        });
     }
 
     public function boot(): void
