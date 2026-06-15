@@ -2,6 +2,20 @@
 
 A production-ready **Laravel 13** starter application built on the [Sneat Bootstrap 5 Admin Template](https://themeselection.com/item/sneat-bootstrap-html-admin-template/). Ships with authentication, role-based access control, two-factor authentication, profile management, site settings, and a browser-based artisan console — all wired up and ready to extend.
 
+## Screenshots
+
+| Login | Dashboard |
+|---|---|
+| ![Login](docs/screenshots/login.png) | ![Dashboard](docs/screenshots/dashboard.png) |
+
+| User Management | Artisan Console |
+|---|---|
+| ![Users](docs/screenshots/admin-users.png) | ![Artisan](docs/screenshots/admin-artisan.png) |
+
+| Site Settings |
+|---|
+| ![Settings](docs/screenshots/admin-settings.png) |
+
 ## Features
 
 - **Authentication** — login by email or username, registration (admin-toggleable), password reset, remember-me
