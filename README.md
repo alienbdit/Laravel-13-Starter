@@ -1,4 +1,4 @@
-# Laravel Starter
+# Laravel 13 Starter by Rhythm
 
 A production-ready **Laravel 13** starter application built on the [Sneat Bootstrap 5 Admin Template](https://themeselection.com/item/sneat-bootstrap-html-admin-template/). Ships with authentication, role-based access control, two-factor authentication, profile management, site settings, and a browser-based artisan console — all wired up and ready to extend.
 
